@@ -22,11 +22,11 @@ cache:
   directories:
     - $PIP_CACHE_DIR
 
-branches:
-  only:
-    - main
-    - dev
-    - /^release-.*$/
+# branches:
+#   only:
+#     - main
+#     - dev
+#     - /^release-.*$/
 
 install:
   - pip install --upgrade pip
