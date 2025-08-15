@@ -1,8 +1,61 @@
 language: python
+
+os:
+  - linux
+  - osx
+  - windows
+
+dist: focal
+
 python:
   - "3.8"
   - "3.9"
+  - "3.10"
+
+env:
+  global:
+    - PIP_CACHE_DIR=$HOME/.cache/pip
+    - DOCS_DIR=docs
+
+cache:
+  pip: true
+  directories:
+    - $PIP_CACHE_DIR
+
+branches:
+  only:
+    - main
+    - dev
+    - /^release-.*$/
+
 install:
+  - pip install --upgrade pip
   - pip install -r requirements.txt
+  - pip install pytest pytest-cov flake8 sphinx
+
+before_script:
+  - flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+  - flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
 script:
-  - pytest
+  - pytest --cov=your_package tests/
+  - sphinx-build -b html $DOCS_DIR $DOCS_DIR/_build
+
+after_success:
+  # 上传 coverage 到 codecov (可选)
+  - bash <(curl -s https://codecov.io/bash)
+
+deploy:
+  provider: script
+  script: bash deploy.sh
+  on:
+    tags: true
+    python: "3.9"
+    branch: main
+
+notifications:
+  email:
+    recipients:
+      - your@email.com
+    on_success: always
+    on_failure: always
